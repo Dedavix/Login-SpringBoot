@@ -1,5 +1,7 @@
 package it.objectmethod.login.controller.rest;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,8 +43,8 @@ public class LoginRestController {
 		if(name == null || surname == null || email == null || password == null) {
 			outputMsg = LoginStatusMsg.ERR_REGISTRAZIONE.toString();
 		}else {
-			User userName = userDao.getUserByEmail(email);
-			if (userName != null) {
+			List<User> userList = userDao.getUserByEmail(email);
+			if (!userList.isEmpty()) {
 				outputMsg = LoginStatusMsg.KO_REGISTRAZIONE.toString();
 			} else {
 				int rs = userDao.update(name, surname, email, password);
