@@ -27,7 +27,7 @@ public class LoginFilter implements Filter {
 		String uri = httpRequest.getRequestURI();
 		if (uri.endsWith("/signin") || uri.endsWith("/save")) {
 			chain.doFilter(request, response);
-		} else if (httpRequest.getRequestURI().endsWith("/getNome")) {
+		} else {
 			String token = httpRequest.getHeader("token");
 
 			if (token == null || !authTable.getAuthTable().containsKey(token)) {

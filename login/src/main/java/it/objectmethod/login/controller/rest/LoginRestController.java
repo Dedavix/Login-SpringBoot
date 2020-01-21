@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.objectmethod.login.Dao.UserDao;
 import it.objectmethod.login.auth.tables.AuthenticateTable;
+import it.objectmethod.login.dao.UserDao;
 import it.objectmethod.login.model.User;
 import it.objectmethod.login.model.enums.LoginStatusMsg;
 
@@ -39,18 +39,21 @@ public class LoginRestController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		String statusMsg;
 		user = userDao.getUser(email, password);
+		ResponseEntity<String> response = new ResponseEntity<String>(HttpStatus.ACCEPTED);
 		if (user== null) {
 			user = new User();
-			 statusMsg=LoginStatusMsg.KO_LOGIN.toString();
+			statusMsg=LoginStatusMsg.KO_LOGIN.toString();
+			response = ResponseEntity.badRequest().body(statusMsg);
 		} else {
 			String uniqueID = UUID.randomUUID().toString();
 			tokenTable.getAuthTable().put(uniqueID, user);
 			responseHeaders.set("token", uniqueID);
 			statusMsg = LoginStatusMsg.OK_LOGIN.toString();
+			response = ResponseEntity.ok()
+				      .headers(responseHeaders)
+				      .body(statusMsg);
 		}
-		return ResponseEntity.ok()
-			      .headers(responseHeaders)
-			      .body(statusMsg);	
+		return response	;
 	}
 	
 	@PostMapping("/save")

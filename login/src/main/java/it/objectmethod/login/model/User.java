@@ -1,7 +1,5 @@
 package it.objectmethod.login.model;
 
-import it.objectmethod.login.model.enums.LoginStatusMsg;
-
 public class User {
 	
 	private String name;
@@ -11,8 +9,6 @@ public class User {
 	private String password;
 	
 	private String email;
-	
-	private LoginStatusMsg loginStatus;
 	
 	public String getName() {
 		return name;
@@ -44,14 +40,6 @@ public class User {
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	public LoginStatusMsg getLoginStatus() {
-		return loginStatus;
-	}
-
-	public void setLoginStatus(LoginStatusMsg loginStatus) {
-		this.loginStatus = loginStatus;
 	}
 
 }

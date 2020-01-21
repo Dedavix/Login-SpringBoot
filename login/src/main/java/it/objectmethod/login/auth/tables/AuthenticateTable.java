@@ -18,10 +18,5 @@ public class AuthenticateTable {
 		}
 		return authTable;
 	}
-
-	public void setAuthTable(Map<String, User> authTable) {
-		this.authTable = authTable;
-	}
 		
-
 }
