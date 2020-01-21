@@ -1,16 +1,25 @@
 package it.objectmethod.login.controller.rest;
 
 import java.util.List;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.objectmethod.login.Dao.UserDao;
+import it.objectmethod.login.auth.tables.AuthenticateTable;
 import it.objectmethod.login.model.User;
 import it.objectmethod.login.model.enums.LoginStatusMsg;
 
@@ -21,15 +30,27 @@ public class LoginRestController {
 	@Autowired
 	public UserDao userDao;
 	
-	@GetMapping("/getByEmailAndPassword")
-	public User getUser(@RequestParam(value = "email",required = true) String email, @RequestParam(value = "password", required= true) String password) {
+	@Autowired
+	public AuthenticateTable tokenTable;
+	
+	@PostMapping("/signin")
+	public ResponseEntity<String> getUser(@RequestParam(value = "email",required = true) String email, @RequestParam(value = "password", required= true) String password) {
 		User user = null;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		String statusMsg;
 		user = userDao.getUser(email, password);
 		if (user== null) {
 			user = new User();
-			user.setLoginStatus(LoginStatusMsg.KO_LOGIN);
+			 statusMsg=LoginStatusMsg.KO_LOGIN.toString();
+		} else {
+			String uniqueID = UUID.randomUUID().toString();
+			tokenTable.getAuthTable().put(uniqueID, user);
+			responseHeaders.set("token", uniqueID);
+			statusMsg = LoginStatusMsg.OK_LOGIN.toString();
 		}
-		return user;	
+		return ResponseEntity.ok()
+			      .headers(responseHeaders)
+			      .body(statusMsg);	
 	}
 	
 	@PostMapping("/save")
@@ -56,6 +77,15 @@ public class LoginRestController {
 			}	
 		}	
 		return outputMsg;	
+	}
+	
+	@GetMapping("/getNome")
+	public String getNome(@RequestHeader(value="token")String token) {
+		
+		User user = tokenTable.getAuthTable().get(token);
+		
+		return "Ciao " + user.getName();
+		
 	}
 
 }
